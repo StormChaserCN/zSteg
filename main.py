@@ -7,7 +7,6 @@ from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import MD5
 
-from Container.AudioContainer import *
 from Container.ImageContainer import *
 
 BUF_SIZE = 10485760  # 10MB
@@ -66,60 +65,35 @@ def decrypt_file(key, srcpath, dstpath):
         fdout.truncate(origsize)
 
 
-def smash_into_bmp(key, bmppath, filepath, savepath, ver=0):
-    compress_file(filepath, filepath + '.1')
-    encrypt_file(key, filepath + '.1', filepath + '.2')
-    filesize = os.path.getsize(filepath + '.2')
-    c = BMPContainer(bmppath)
-    with open(filepath + '.2', 'rb') as fdfile:
-        info = fdfile.read(filesize)
+def smash_into(container, info_path, save_path, key, ver=0):
+    try:
+        compress_file(info_path, info_path + '.1')
+        encrypt_file(key, info_path + '.1', info_path + '.2')
+        file_size = os.path.getsize(info_path + '.2')
+        with open(info_path + '.2', 'rb') as fdfile:
+            info = fdfile.read(file_size)
+            if ver == 0:
+                container.smash_into(info, save_path)
+            else:
+                container.smash_into_with_key(info, key, save_path)
+    finally:
+        os.remove(info_path + '.1')
+        os.remove(info_path + '.2')
+
+
+def split_from(container, save_path, key, isize=0, ver=0):
+    try:
         if ver == 0:
-            c.smash_into(info, savepath)
+            container.split_from(save_path + '.1')
         else:
-            c.smash_into_with_key(info, key, savepath)
-    os.remove(filepath + '.1')
-    os.remove(filepath + '.2')
-
-
-def split_from_bmp(key, bmppath, savepath, isize=0, ver=0):
-    c = BMPContainer(bmppath)
-    if ver == 0:
-        c.split_from(savepath)
-    else:
-        c.split_from_with_key(key, isize, savepath + '.1')
-    decrypt_file(key, savepath + '.1', savepath + '.2')
-    decompress_file(savepath + '.2', savepath)
-    os.remove(savepath + '.1')
-    os.remove(savepath + '.2')
-
-
-def smash_into_wav(key, wavpath, filepath, savepath, ver=0):
-    compress_file(filepath, filepath + '.1')
-    encrypt_file(key, filepath + '.1', filepath + '.2')
-    filesize = os.path.getsize(filepath + '.2')
-    c = WAVContainer(wavpath)
-    with open(filepath + '.2', 'rb') as fdfile:
-        info = fdfile.read(filesize)
-        if ver == 0:
-            c.smash_into(info, savepath)
-        else:
-            c.smash_into_with_key(info, key, savepath)
-    os.remove(filepath + '.1')
-    os.remove(filepath + '.2')
-
-
-def split_from_wav(key, wavpath, savepath, isize=0, ver=0):
-    c = WAVContainer(wavpath)
-    if ver == 0:
-        c.split_from(savepath + '.1')
-    else:
-        c.split_from_with_key(key, isize, savepath + '.1')
-    decrypt_file(key, savepath + '.1', savepath + '.2')
-    decompress_file(savepath + '.2', savepath)
-    os.remove(savepath + '.1')
-    os.remove(savepath + '.2')
+            container.split_from_with_key(key, isize, save_path + '.1')
+        decrypt_file(key, save_path + '.1', save_path + '.2')
+        decompress_file(save_path + '.2', save_path)
+    finally:
+        os.remove(save_path + '.1')
+        os.remove(save_path + '.2')
 
 
 if __name__ == '__main__':
-    smash_into_bmp('key123', 'd:/1.bmp', 'd:/1.txt', 'd:/2.bmp')
-    split_from_bmp('key123', 'd:/2.bmp', 'd:/2.txt')
+    c = PNGContainer('d:/1.png')
+    smash_into(c, 'd:/1.txt', 'd:/2.png', 'key123321')

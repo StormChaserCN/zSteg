@@ -32,7 +32,6 @@ class Container(object):
 
     def smash_into_with_key(self, info, key, save_path):
         self.get_file_data()
-
         base_index = 0
         base_size = len(self.base)
         info_size = len(info) * 8
@@ -62,10 +61,9 @@ class Container(object):
 
         self.info = ''
         for i in xrange(64, filesize + 64, 8):
-            value = (self.base[i] & 1) * 128 + (self.base[i + 1] & 1) * 64 + (self.base[i + 2] & 1) * 32 + (self.base[
-                                                                                                                i + 3] & 1) * 16 + \
-                    (self.base[i + 4] & 1) * 8 + (self.base[i + 5] & 1) * 4 + (self.base[i + 6] & 1) * 2 + (
-                    self.base[i + 7] & 1)
+            value = (self.base[i] & 1) * 128 + (self.base[i + 1] & 1) * 64 + (self.base[i + 2] & 1) * 32 + \
+                    (self.base[i + 3] & 1) * 16 + (self.base[i + 4] & 1) * 8 + (self.base[i + 5] & 1) * 4 + \
+                    (self.base[i + 6] & 1) * 2 + (self.base[i + 7] & 1)
             self.info += struct.pack('B', value)
         self.save_secret(save_path)
         return
@@ -84,10 +82,9 @@ class Container(object):
 
         self.info = ''
         for i in xrange(0, info_size, 8):
-            value = (self.base[rlist[i]] & 1) * 128 + (self.base[rlist[i + 1]] & 1) * 64 + (self.base[rlist[
-                i + 2]] & 1) * 32 + \
-                    (self.base[rlist[i + 3]] & 1) * 16 + (self.base[rlist[i + 4]] & 1) * 8 + (self.base[rlist[
-                i + 5]] & 1) * 4 + \
+            value = (self.base[rlist[i]] & 1) * 128 + (self.base[rlist[i + 1]] & 1) * 64 + \
+                    (self.base[rlist[i + 2]] & 1) * 32 + (self.base[rlist[i + 3]] & 1) * 16 + \
+                    (self.base[rlist[i + 4]] & 1) * 8 + (self.base[rlist[i + 5]] & 1) * 4 + \
                     (self.base[rlist[i + 6]] & 1) * 2 + (self.base[rlist[i + 7]] & 1)
             self.info += struct.pack('B', value)
         self.save_secret(save_path)
