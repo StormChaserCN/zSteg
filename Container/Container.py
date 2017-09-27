@@ -14,6 +14,9 @@ class Container(object):
     def smash_into(self, info, save_path):
         self.get_file_data()
 
+        if self.base is None:
+            raise 'Read data failed.'
+
         base_index = 0
         info_size = len(info) * 8
 
@@ -32,6 +35,9 @@ class Container(object):
 
     def smash_into_with_key(self, info, key, save_path):
         self.get_file_data()
+        if self.base is None:
+            raise 'Read data failed.'
+
         base_index = 0
         base_size = len(self.base)
         info_size = len(info) * 8
@@ -53,6 +59,9 @@ class Container(object):
 
     def split_from(self, save_path):
         self.get_file_data()
+        if self.base is None:
+            raise 'Read data failed.'
+
         filesize = 0
         for i in xrange(63):
             filesize += (self.base[63 - i] & 1)
@@ -70,6 +79,8 @@ class Container(object):
 
     def split_from_with_key(self, key, info_size, save_path):
         self.get_file_data()
+        if self.base is None:
+            raise 'Read data failed.'
         random.seed(key)
         base_len = len(self.base)
         rlist = list()

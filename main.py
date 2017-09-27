@@ -7,7 +7,7 @@ from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import MD5
 
-from Container.ImageContainer import *
+from Container.VideoContainer import *
 
 BUF_SIZE = 10485760  # 10MB
 
@@ -95,5 +95,13 @@ def split_from(container, save_path, key, isize=0, ver=0):
 
 
 if __name__ == '__main__':
-    c = PNGContainer('d:/1.png')
-    smash_into(c, 'd:/1.txt', 'd:/2.png', 'key123321')
+    c = AVIContainer('d:/1.avi')
+    smash_into(c, 'd:/zteg_test_info.txt', 'd:/2.avi', 'key123321')
+
+    # c1 = AVIContainer('d:/2.avi')
+    # split_from(c1, 'd:/2.txt', 'key123321')
+
+
+
+
+
