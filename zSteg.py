@@ -7,29 +7,7 @@ from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import MD5
 
-from Container.VideoContainer import *
-
 BUF_SIZE = 10485760  # 10MB
-
-
-def compress_file(src_path, dst_path):
-    compress_obj = zlib.compressobj(9)
-    with open(src_path, 'rb') as fd_in, open(dst_path, 'wb') as fd_out:
-        data = fd_in.read(BUF_SIZE)
-        while data:
-            fd_out.write(compress_obj.compress(data))
-            data = fd_in.read(BUF_SIZE)
-        fd_out.write(compress_obj.flush())
-
-
-def decompress_file(src_path, dst_path):
-    decompress_obj = zlib.decompressobj()
-    with open(src_path, 'rb') as fd_in, open(dst_path, 'wb') as fd_out:
-        data = fd_in.read(BUF_SIZE)
-        while data:
-            fd_out.write(decompress_obj.decompress(data))
-            data = fd_in.read(BUF_SIZE)
-        fd_out.write(decompress_obj.flush())
 
 
 def encrypt_file(key, src_path, dst_path):
@@ -95,13 +73,4 @@ def split_from(container, save_path, key, isize=0, ver=0):
 
 
 if __name__ == '__main__':
-    c = AVIContainer('d:/1.avi')
-    smash_into(c, 'd:/zteg_test_info.txt', 'd:/2.avi', 'key123321')
-
-    # c1 = AVIContainer('d:/2.avi')
-    # split_from(c1, 'd:/2.txt', 'key123321')
-
-
-
-
-
+    pass
