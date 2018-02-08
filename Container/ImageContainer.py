@@ -30,4 +30,3 @@ class PNGContainer(Container.Container):
         img1 = Image.fromarray(self.base.reshape(self.height, self.width, 4))
         img1.save(save_path)
         return
-

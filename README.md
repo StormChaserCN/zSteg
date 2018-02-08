@@ -1,3 +1,10 @@
 # zSteg
 
-Hide & Extract information in files
+Hide & Extract information in files.
+
+------
+
+## Exampe:
+```
+zSteg.py 
+```

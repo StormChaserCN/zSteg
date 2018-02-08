@@ -1,52 +1,17 @@
 # coding=utf-8
-import os
-import struct
-import zlib
-
-from Crypto import Random
-from Crypto.Cipher import AES
-from Crypto.Hash import MD5
+from Cipher.AESCipher import *
+from Compressor.ZLibCompressor import *
+from Container.ImageContainer import *
 
 BUF_SIZE = 10485760  # 10MB
 
 
-def encrypt_file(key, src_path, dst_path):
-    iv = Random.new().read(AES.block_size)
-    file_size = os.path.getsize(src_path)
-    m = MD5.new()
-    m.update(key)
-    key = m.digest()
-    encryptor = AES.new(key, AES.MODE_CBC, iv)
-    with open(src_path, 'rb') as fd_in, open(dst_path, 'wb') as fd_out:
-        fd_out.write(iv)
-        fd_out.write(struct.pack('<Q', file_size))
-        data = fd_in.read(BUF_SIZE)
-        while data:
-            if len(data) % AES.block_size != 0:
-                data += '\x00' * (AES.block_size - len(data) % AES.block_size)
-            fd_out.write(encryptor.encrypt(data))
-            data = fd_in.read(BUF_SIZE)
-
-
-def decrypt_file(key, src_path, dst_path):
-    m = MD5.new()
-    m.update(key)
-    key = m.digest()
-    with open(src_path, 'rb') as fd_in, open(dst_path, 'wb') as fd_out:
-        iv = fd_in.read(AES.block_size)
-        original_size = struct.unpack('<Q', fd_in.read(struct.calcsize('Q')))[0]
-        decryptor = AES.new(key, AES.MODE_CBC, iv)
-        data = fd_in.read(BUF_SIZE)
-        while data:
-            fd_out.write(decryptor.decrypt(data))
-            data = fd_in.read(BUF_SIZE)
-        fd_out.truncate(original_size)
-
-
 def smash_into(container, info_path, save_path, key, ver=0):
     try:
-        compress_file(info_path, info_path + '.1')
-        encrypt_file(key, info_path + '.1', info_path + '.2')
+        compressor = ZLibCompressor()
+        compressor.compress_file(info_path, info_path + '.1')
+        cipher = AESCipher()
+        cipher.encrypt_file(key, info_path + '.1', info_path + '.2')
         file_size = os.path.getsize(info_path + '.2')
         with open(info_path + '.2', 'rb') as fd_file:
             info = fd_file.read(file_size)
@@ -65,12 +30,17 @@ def split_from(container, save_path, key, isize=0, ver=0):
             container.split_from(save_path + '.1')
         else:
             container.split_from_with_key(key, isize, save_path + '.1')
-        decrypt_file(key, save_path + '.1', save_path + '.2')
-        decompress_file(save_path + '.2', save_path)
+        cipher = AESCipher()
+        cipher.decrypt_file(key, save_path + '.1', save_path + '.2')
+        compressor = ZLibCompressor()
+        compressor.decompress_file(save_path + '.2', save_path)
     finally:
         os.remove(save_path + '.1')
         os.remove(save_path + '.2')
 
 
 if __name__ == '__main__':
-    pass
+    bmpc = BMPContainer(r'C:\Users\fhyd\Desktop\Project\1.bmp')
+    smash_into(bmpc, r'C:\Users\fhyd\Desktop\Project\1.txt', r'C:\Users\fhyd\Desktop\Project\2.bmp', 'abcd123', 0)
+    bmpc = BMPContainer(r'C:\Users\fhyd\Desktop\Project\2.bmp')
+    split_from(bmpc, r'C:\Users\fhyd\Desktop\Project\2.txt', 'abcd123')
